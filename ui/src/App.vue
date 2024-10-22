@@ -1,5 +1,9 @@
 <script setup>
+import { ref } from 'vue';
 import HalfGauge from './components/HalfGauge.vue'
+import Slider from '@vueform/slider';
+const voltage = ref(0);
+const maxVoltage = 160;
 </script>
 
 <template>
@@ -11,9 +15,10 @@ import HalfGauge from './components/HalfGauge.vue'
     <div class="control">
       <HalfGauge 
         title="voltage"
-        :value="10" 
-        :maxValue="160"
+        :value="voltage" 
+        :maxValue="maxVoltage"
       />
+      <Slider v-model="voltage" :min="0" :max="maxVoltage" :lazy="false"/>
     </div>
     <div class="control">
       <HalfGauge 
@@ -33,3 +38,4 @@ main {
   align-items: center;
 }
 </style>
+<style src="@vueform/slider/themes/default.css"></style>
