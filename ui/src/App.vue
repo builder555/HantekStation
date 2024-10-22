@@ -18,7 +18,15 @@ const maxVoltage = 160;
         :value="voltage" 
         :maxValue="maxVoltage"
       />
-      <Slider v-model="voltage" :min="0" :max="maxVoltage" :lazy="false"/>
+      <Slider
+        showTooltip="focus"
+        tooltipPosition="bottom"
+        :min="0"
+        :max="maxVoltage"
+        :lazy="false"
+        v-model="voltage"
+        style="width: 90%; --slider-height: 20px; --slider-handle-width: 34px; --slider-handle-height: 34px;"
+      />
     </div>
     <div class="control">
       <HalfGauge 
@@ -35,6 +43,11 @@ main {
   display: flex;
   flex-direction: row;
   justify-content: space-evenly;
+  align-items: flex-start;
+}
+.control {
+  display: flex;
+  flex-direction: column;
   align-items: center;
 }
 </style>
