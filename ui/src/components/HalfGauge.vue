@@ -1,17 +1,23 @@
 <script setup>
 import { computed } from 'vue';
-const props = defineProps(['value', 'maxValue', 'title'])
+const props = defineProps({
+  value: Number,
+  maxValue: Number,
+  title: String,
+  precision: {type: Number, default: 0},
+});
 const cursorPosition = computed(() => Math.round(props.value / props.maxValue * 9));
 const fontSize = computed(() => {
-  const numCharacters = `${props.value}`.length;
+  const numCharacters = `${valueText.value}`.length;
   if (numCharacters > 4) {
     return '1.7em';
-  } else if (numCharacters > 3) {
+  } 
+  if (numCharacters > 3) {
     return '2em';
-  } else {
-    return '2.4em';
-  }
+  } 
+  return '2.4em';
 });
+const valueText = computed(() => props.value.toFixed(props.precision));
 </script>
 <template>
   <div class="gauge-container">
@@ -34,7 +40,7 @@ const fontSize = computed(() => {
       </div>
       <div class="tick-circle"></div>
       <div class="labels">
-        <div class="value-label" :style="{ 'font-size': fontSize }">{{ props.value }}</div>
+        <div class="value-label" :style="{ 'font-size': fontSize }">{{ valueText }}</div>
         <div class="value-title">{{ props.title }}</div>
       </div>
     </div>
