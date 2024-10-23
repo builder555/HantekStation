@@ -21,7 +21,7 @@ const valueText = computed(() => props.value.toFixed(props.precision));
 </script>
 <template>
   <div class="gauge-container">
-    <div class="gauge" style=" width:200px; height:200px;">
+    <div class="gauge">
       <div class="tick-circlebackground"></div>
       <div class="tick-circlegradient"></div>
       <div class="tick-cursor" :style="`--position:${cursorPosition}`"></div>
@@ -67,6 +67,8 @@ const valueText = computed(() => props.value.toFixed(props.precision));
   border-radius: 50%;
   min-width: 300px;
   min-height: 300px;
+  width:200px;
+  height:200px;
   font-size: 34px;
 }
 
