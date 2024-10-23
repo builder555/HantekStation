@@ -13,12 +13,18 @@ const props = defineProps({
   title: String,
 });
 const precision = computed(() => props.fineStep.toString().split('.').slice(-1)[0].length);
-const currentValue = ref(props.min);
+const currentValue = defineModel();
 const minValue = ref(props.min);
 const maxValue = ref(props.max);
 const mode = ref('coarse');
 const step = ref(props.coarseStep);
 const fineRange = props.fineStep * 50;
+const noUiSliderOptions = {
+  format: {
+    to: v => v.toFixed(6),
+    from: v => v,
+  }
+};
 function toggleCorase(newMode) {
   if (newMode === 'coarse') {
     mode.value = 'fine';
@@ -33,12 +39,6 @@ function toggleCorase(newMode) {
     maxValue.value = props.max;
   }
 }
-const options = {
-  format: {
-    to: v => v.toFixed(6),
-    from: v => v,
-  }
-};
 </script>
 <template>
   <div class="control">
@@ -55,7 +55,7 @@ const options = {
       :max="maxValue"
       :step="step"
       :lazy="false"
-      :options="options"
+      :options="noUiSliderOptions"
       v-model="currentValue"
     />
     <button class="coarse-switch" @click="toggleCorase(mode)">{{ mode }}</button>

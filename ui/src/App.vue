@@ -1,25 +1,26 @@
 <script setup>
+import { ref } from 'vue';
 import ValueControl from './components/ValueControl.vue';
+const voltage = ref(0);
+const current = ref(0);
 </script>
 
 <template>
-  <header>
-
-  </header>
-
   <main>
-      <ValueControl
-        :max="160"
-        :coarseStep="1"
-        :fineStep="0.05"
-        title="voltage"
-      />
-      <ValueControl
-        :max="4.1"
-        :coarseStep="0.1"
-        :fineStep="0.005"
-        title="current"
-      />
+    <ValueControl
+      :max="160"
+      :coarseStep="1"
+      :fineStep="0.05"
+      title="voltage"
+      v-model="voltage"
+    />
+    <ValueControl
+      :max="4.1"
+      :coarseStep="0.1"
+      :fineStep="0.005"
+      title="current"
+      v-model="current"
+    />
   </main>
 </template>
 
