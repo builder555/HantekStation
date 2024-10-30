@@ -1,0 +1,23 @@
+FROM python:3.10-slim
+
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+ENV PATH="/root/.local/bin:$PATH"
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y curl gnupg2 ca-certificates lsb-release && apt-get clean 
+RUN curl -sSL https://install.python-poetry.org | python3 - 
+RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
+
+RUN apt-get install -y nodejs && apt-get clean
+
+COPY ./server/poetry.lock ./server/pyproject.toml /app/
+COPY ./ui/package.json /ui/
+
+RUN poetry install --no-root
+RUN cd /ui && rm -rf node_modules && npm install
+
+EXPOSE 8000
+
+CMD cd /ui && npm run dev & cd /app && poetry run uvicorn api.ws:app --host 0.0.0.0 --port 8000
