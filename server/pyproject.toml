@@ -1,0 +1,25 @@
+[tool.poetry]
+name = "api"
+version = "0.1.0"
+description = ""
+authors = ["builder555 <85308587+builder555@users.noreply.github.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+fastapi = "^0.115.3"
+uvicorn = "^0.32.0"
+websockets = "^13.1"
+hantekpsu = "^0.3.0"
+
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.3"
+pytest-watch = "^4.2.0"
+pytest-asyncio = "^0.24.0"
+black = "^24.10.0"
+httpx = "^0.27.2"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
