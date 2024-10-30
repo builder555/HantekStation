@@ -20,4 +20,4 @@ RUN cd /ui && rm -rf node_modules && npm install
 
 EXPOSE 8000
 
-CMD cd /ui && npm run dev & cd /app && poetry run uvicorn api.ws:app --host 0.0.0.0 --port 8000
+CMD cd /ui && npm run dev & cd /app && poetry run uvicorn api.ws:app --host 0.0.0.0 --port 8000 --reload
