@@ -30,7 +30,7 @@ class Socket {
     });
   }
   async ensureSocketConnected() {
-    if (this.isInitialized) {
+    if (!this.isInitialized) {
       await this.initSocket();
     }
   }
