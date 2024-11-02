@@ -11,9 +11,12 @@ const props = defineProps({
   coarseStep: Number,
   fineStep: Number,
   title: String,
+  displayValue: Number,
+  displayValueIf: Boolean,
 });
-const precision = computed(() => props.fineStep.toString().split('.').slice(-1)[0].length);
-const currentValue = defineModel();
+const isChanging = ref(false);
+const numDigitsAfterDecimal = computed(() => props.fineStep.toString().split('.').slice(-1)[0].length);
+const setValue = defineModel();
 const minValue = ref(props.min);
 const maxValue = ref(props.max);
 const mode = ref('coarse');
@@ -29,7 +32,7 @@ function toggleCorase(newMode) {
   if (newMode === 'coarse') {
     mode.value = 'fine';
     step.value = props.fineStep;
-    const campledValue = Math.max(fineRange, Math.min(currentValue.value, props.max - fineRange));
+    const campledValue = Math.max(fineRange, Math.min(setValue.value, props.max - fineRange));
     minValue.value = campledValue - fineRange;
     maxValue.value = campledValue + fineRange;
   } else {
@@ -44,9 +47,9 @@ function toggleCorase(newMode) {
   <div class="control">
     <HalfGauge
       :title="title"
-      :value="currentValue"
+      :value="props.displayValueIf && !isChanging ? props.displayValue : setValue"
       :maxValue="props.max"
-      :precision="precision"
+      :precision="numDigitsAfterDecimal"
     />
     <Slider
       class="slider"
@@ -56,7 +59,9 @@ function toggleCorase(newMode) {
       :step="step"
       :lazy="false"
       :options="noUiSliderOptions"
-      v-model="currentValue"
+      @start="isChanging = true"
+      @end="isChanging = false"
+      v-model="setValue"
     />
     <button class="coarse-switch" @click="toggleCorase(mode)">{{ mode }}</button>
   </div>

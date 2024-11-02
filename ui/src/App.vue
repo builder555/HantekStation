@@ -2,12 +2,20 @@
 import { ref, onMounted, computed, watch } from 'vue';
 import ValueControl from './components/ValueControl.vue';
 import { socket } from './websocket';
-const isInitialized = computed(() => maxVoltage.value > 0 && maxCurrent.value > 0 && socket.isInitialized);
-const voltage = ref(0);
-const current = ref(0);
+const realVoltage = ref(0);
+const realCurrent = ref(0);
+const setVoltage = ref(0);
+const didGetVoltage = ref(false);
+const didGetCurrent = ref(false);
+const setCurrent = ref(0);
 const isOn = ref(false);
 const maxVoltage = ref(0);
 const maxCurrent = ref(0);
+const isInitialized = computed(() => 
+  maxVoltage.value > 0 && 
+  maxCurrent.value > 0 && 
+  socket.isInitialized
+);
 function togglePower() {
   socket.send({
     command: isOn.value ? 'POWER_OFF' : 'POWER_ON',
@@ -25,27 +33,31 @@ function throttle(fn, wait){
         }
     }
 }
-watch(voltage, throttle(() => {
-  socket.send({
-    command: 'SET_VOLTAGE',
-    payload: voltage.value,
-  });
-}, 200));
-watch(current, throttle(() => {
-    socket.send({
-      command: 'SET_CURRENT',
-      payload: Math.round(current.value * 1000),
-    });
-}, 200));
-
 onMounted(async () => {
   await socket.initSocket();
   socket.on('POWER', v => isOn.value = v);
-  // socket.on('VOLTAGE', v => voltage.value = v);
-  // socket.on('CURRENT', v => current.value = v);
+  socket.on('VOLTAGE', v => realVoltage.value = v);
+  socket.on('CURRENT', v => realCurrent.value = v/1000);
   socket.on('MAX_VOLTAGE', v => maxVoltage.value = v);
   socket.on('MAX_CURRENT', v => maxCurrent.value = v);
+  socket.on('VOLTAGE_LIMIT', v => setVoltage.value = v);
+  socket.on('CURRENT_LIMIT', v => setCurrent.value = v/1000);
 });
+// watch(isInitialized, () => {
+  watch(setVoltage, throttle(() => {
+    socket.send({
+      command: 'SET_VOLTAGE',
+      payload: setVoltage.value,
+    });
+  }, 200));
+  watch(setCurrent, throttle(() => {
+      socket.send({
+        command: 'SET_CURRENT',
+        payload: Math.round(setCurrent.value * 1000),
+      });
+  }, 200));  
+// });
+
 </script>
 
 <template>
@@ -55,14 +67,18 @@ onMounted(async () => {
       :coarseStep="1"
       :fineStep="0.05"
       title="voltage"
-      v-model="voltage"
+      :display-value="realVoltage"
+      :display-value-if="isOn"
+      v-model="setVoltage"
     />
     <ValueControl
       :max="maxCurrent"
       :coarseStep="0.1"
       :fineStep="0.005"
+      :display-value="realCurrent"
+      :display-value-if="isOn"
       title="current"
-      v-model="current"
+      v-model="setCurrent"
     />
   </main>
   <footer>
