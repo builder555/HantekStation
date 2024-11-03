@@ -26,5 +26,5 @@ TODO:
 - [x] Fetch voltage/current periodically
 - [x] Set initial voltage/current
 - [x] Display set voltage/current when dragging sliders
-- [ ] Reconnect WS on connection loss
+- [x] Reconnect WS on connection loss
 - [ ] Display error messages

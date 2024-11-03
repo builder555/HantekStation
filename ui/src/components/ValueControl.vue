@@ -14,7 +14,8 @@ const props = defineProps({
   displayValue: Number,
   displayValueIf: Boolean,
 });
-const isChanging = ref(false);
+const emit = defineEmits(['start-updating', 'stop-updating']);
+const isUpdatingValue = ref(false);
 const numDigitsAfterDecimal = computed(() => props.fineStep.toString().split('.').slice(-1)[0].length);
 const setValue = defineModel();
 const minValue = ref(props.min);
@@ -42,12 +43,20 @@ function toggleCorase(newMode) {
     maxValue.value = props.max;
   }
 }
+function onStartChanging() {
+  isUpdatingValue.value = true;
+  emit('start-updating');
+}
+function onStopChanging() {
+  isUpdatingValue.value = false;
+  emit('stop-updating');
+}
 </script>
 <template>
   <div class="control">
     <HalfGauge
       :title="title"
-      :value="props.displayValueIf && !isChanging ? props.displayValue : setValue"
+      :value="props.displayValueIf && !isUpdatingValue ? props.displayValue : setValue"
       :maxValue="props.max"
       :precision="numDigitsAfterDecimal"
     />
@@ -59,8 +68,8 @@ function toggleCorase(newMode) {
       :step="step"
       :lazy="false"
       :options="noUiSliderOptions"
-      @start="isChanging = true"
-      @end="isChanging = false"
+      @start="onStartChanging"
+      @end="onStopChanging"
       v-model="setValue"
     />
     <button class="coarse-switch" @click="toggleCorase(mode)">{{ mode }}</button>
