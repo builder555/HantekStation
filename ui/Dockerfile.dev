@@ -7,4 +7,4 @@ RUN npm install
 
 EXPOSE 5173
 
-CMD ln -s /src /app && npm run dev
+CMD ln -s /app/node_modules /src && cd /src && npm run dev
