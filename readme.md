@@ -10,7 +10,14 @@ Prerequisites
 - docker
 - docker-compose
 
-Run
+#### Run
+
+If you DO NOT have the psu connected, remove `devices` section from compose.dev.yml with 
+
+```yaml
+    environment:
+      - NO_DEVICE=1
+```
 
 ```bash
 docker compose -f compose.dev.yml up -d --build

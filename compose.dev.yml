@@ -6,8 +6,8 @@ services:
     container_name: hantek-server
     ports:
       - "8000:8000"
-    environment:
-      - NO_DEVICE=1
+    devices:
+      - "/dev/ttyUSB0:/dev/ttyUSB0"
     volumes:
       - ./server:/app
   ui:
