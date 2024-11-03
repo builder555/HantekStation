@@ -1,16 +1,23 @@
 version: "3.9"
 
 services:
-  app:
+  server:
     build:
-      context: .
+      context: server/
       dockerfile: Dockerfile.dev
-    container_name: hantek-station
+    container_name: hantek-server
     ports:
       - "8000:8000"
-      - "5173:5173"
     environment:
       - NO_DEVICE=1
     volumes:
       - ./server:/app
-      - ./ui:/ui
+  ui:
+    build:
+      context: ui/
+      dockerfile: Dockerfile.dev
+    container_name: hantek-ui
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./ui:/src
