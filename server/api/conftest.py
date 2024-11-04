@@ -1,7 +1,22 @@
 import random
-class MockedPSU:
+from time import sleep
+
+class MetaDelaySerial(type):
+    def __new__(cls, name, bases, attrs):
+        for attr, value in attrs.items():
+            if callable(value):
+                attrs[attr] = cls.pre_call(value)
+        return super().__new__(cls, name, bases, attrs)
+    @staticmethod
+    def pre_call(func):
+        def wrapper(*args, **kwargs):
+            sleep(0.3)
+            return func(*args, **kwargs)
+        return wrapper
+    
+class MockedPSU(metaclass=MetaDelaySerial):
     def __init__(self):
-        self.__is_on = True
+        self.__is_on = False
         self.__voltage = 0
         self.__current = 0
     def get_model(self):
