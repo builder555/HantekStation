@@ -1,6 +1,7 @@
 import os
-import pytest
+os.environ["NO_DEVICE"] = "1"
 
+import pytest
 from api.ws import app
 from fastapi.testclient import TestClient
 
@@ -13,6 +14,8 @@ def ensure_static_files_exist():
     if not os.path.exists("static/index.html"):
         with open("static/index.html", "w") as f:
             f.write("<html></html>")
+    yield
+    os.remove("static/index.html")
 
 def test_serves_html_on_root():
     response = client.get("/")
