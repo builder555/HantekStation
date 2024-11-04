@@ -54,7 +54,7 @@ watch(setCurrent, throttle(() => {
       command: 'SET_CURRENT',
       payload: Math.round(setCurrent.value * 1000),
     });
-}, 200));  
+}, 200));
 
 </script>
 
@@ -86,7 +86,7 @@ watch(setCurrent, throttle(() => {
   </main>
   <footer>
     <button
-      v-if="isConnected"
+      v-if="isInitialized"
       class="onoff"
       :class="isOn ? 'on' : 'off'"
       @click="togglePower"
