@@ -172,13 +172,13 @@ files = [
 
 [[package]]
 name = "hantekpsu"
-version = "0.3.0"
+version = "1.0.2"
 description = "Python interface for Hantek bench power supply"
 optional = false
 python-versions = "<4.0,>=3.9"
 files = [
-    {file = "hantekpsu-0.3.0-py3-none-any.whl", hash = "sha256:a96ad4f46112493522705a84edd0962eac3e0c0de13e98df375564de40f20ea3"},
-    {file = "hantekpsu-0.3.0.tar.gz", hash = "sha256:bb07b75ec4b3e858e4c1e2dbbb8e9e4f013c94d14518fe5b94cc1b9f2b4b2c9b"},
+    {file = "hantekpsu-1.0.2-py3-none-any.whl", hash = "sha256:960716024de705dcdcdbfbc5e6b7ec70db5ed24ab45b0ec82d0be0964eedc724"},
+    {file = "hantekpsu-1.0.2.tar.gz", hash = "sha256:cc8e07d69ebcdaaa3fbf8d4387262fae7b3b44698019ae0dd8282d780b889bcd"},
 ]
 
 [package.dependencies]
@@ -738,4 +738,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "ac4b2381d96ace6277de09d36c4eae9520773ebf099bb62e50be0f3042d2ceb4"
+content-hash = "c050793685a11787295dda6ad7a3c04cade3042f2e0a66054c11192dc80a18f7"
