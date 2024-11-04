@@ -12,7 +12,7 @@ Prerequisites
 
 #### Run
 
-If you DO NOT have the psu connected, remove `devices` section from compose.dev.yml with 
+If you DO NOT have the psu connected, replace `devices` section from compose.dev.yml with 
 
 ```yaml
     environment:
