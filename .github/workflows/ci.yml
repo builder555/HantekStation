@@ -25,6 +25,7 @@ jobs:
 
     - name: Install dependencies
       run: |
+        mkdir static
         pip install poetry
         poetry install
 
