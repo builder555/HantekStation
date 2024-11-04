@@ -27,3 +27,4 @@ coverage
 *.tsbuildinfo
 
 **/__pycache__
+package-lock.json
