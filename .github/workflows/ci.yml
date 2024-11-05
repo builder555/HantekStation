@@ -120,6 +120,6 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           push: true
-          tags: builder555/HantekStation:latest
+          tags: builder555/hantek-station:latest
           platforms: linux/amd64,linux/arm64,linux/arm/v7
           context: ./server
