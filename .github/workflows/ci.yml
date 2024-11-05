@@ -101,12 +101,15 @@ jobs:
     needs: semver-action
     if: needs.semver-action.outputs.version != ''
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./server
     steps:
       - name: Check out the repo
         uses: actions/checkout@v4
       - name: Build npm
         run: |
-          cd ui
+          cd ../ui
           npm install
           npm run build
       - name: Set up Docker Buildx
