@@ -15,29 +15,28 @@ if os.environ.get("NO_DEVICE"):
 else:
     from hantekpsu import PSU
 
-psu_limits = {
-    "HDP1160V4S": {
-        "MAX_VOLTAGE": 160,
-        "MAX_CURRENT": 4.1
-    }
-}
+psu_limits = {"HDP1160V4S": {"MAX_VOLTAGE": 160, "MAX_CURRENT": 4.1}}
 
 psu = PSU()
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     threading.Thread(target=psu_data_fetcher).start()
     yield
 
+
 app = FastAPI(lifespan=lifespan)
 
 ws_clients = []
+
 
 @dataclass
 class LiveValue:
     value: Any = None
     is_stale: bool = True
-    
+
+
 @dataclass
 class LiveData:
     is_on: LiveValue = field(default_factory=LiveValue)
@@ -47,17 +46,23 @@ class LiveData:
     current_limit: LiveValue = field(default_factory=LiveValue)
     max_voltage: LiveValue = field(default_factory=LiveValue)
     max_current: LiveValue = field(default_factory=LiveValue)
+
     def update(self, name: str, value: Any):
         setattr(self, name, LiveValue(value=value, is_stale=False))
+
     def mark_stale(self, name: str):
         getattr(self, name).is_stale = True
+
     def values(self):
-        return [v['value'] for v in asdict(self).values()]
+        return [v["value"] for v in asdict(self).values()]
+
 
 live_data = LiveData()
 
+
 class InvalidPSUException(Exception):
     pass
+
 
 def get_psu_limits():
     model = psu.get_model()
@@ -66,6 +71,7 @@ def get_psu_limits():
     max_voltage = psu_limits[model]["MAX_VOLTAGE"]
     max_current = psu_limits[model]["MAX_CURRENT"]
     return (max_voltage, max_current)
+
 
 def psu_data_fetcher():
     while True:
@@ -98,12 +104,21 @@ def psu_data_fetcher():
         except Exception as e:
             print(e)
             import traceback
+
             traceback.print_exc()
 
 
 async def send_psu_status(websocket: WebSocket):
     while websocket.application_state == WebSocketState.CONNECTED and websocket in ws_clients:
-        is_on, active_voltage, active_current, voltage_limit, current_limit, max_voltage, max_current = live_data.values()
+        (
+            is_on,
+            active_voltage,
+            active_current,
+            voltage_limit,
+            current_limit,
+            max_voltage,
+            max_current,
+        ) = live_data.values()
         if is_on is not None:
             await websocket.send_text(json.dumps({"status": "OK", "command": "POWER", "payload": is_on}))
         if active_voltage is not None:
@@ -111,14 +126,31 @@ async def send_psu_status(websocket: WebSocket):
         if active_current is not None:
             await websocket.send_text(json.dumps({"status": "OK", "command": "CURRENT", "payload": active_current}))
         if voltage_limit is not None:
-            await websocket.send_text(json.dumps({"status": "OK", "command": "VOLTAGE_LIMIT", "payload": voltage_limit}))
+            await websocket.send_text(
+                json.dumps(
+                    {
+                        "status": "OK",
+                        "command": "VOLTAGE_LIMIT",
+                        "payload": voltage_limit,
+                    }
+                )
+            )
         if current_limit is not None:
-            await websocket.send_text(json.dumps({"status": "OK", "command": "CURRENT_LIMIT", "payload": current_limit}))
+            await websocket.send_text(
+                json.dumps(
+                    {
+                        "status": "OK",
+                        "command": "CURRENT_LIMIT",
+                        "payload": current_limit,
+                    }
+                )
+            )
         if max_voltage is not None:
             await websocket.send_text(json.dumps({"status": "OK", "command": "MAX_VOLTAGE", "payload": max_voltage}))
         if max_current is not None:
             await websocket.send_text(json.dumps({"status": "OK", "command": "MAX_CURRENT", "payload": max_current}))
         await asyncio.sleep(1)
+
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
@@ -129,21 +161,37 @@ async def websocket_endpoint(websocket: WebSocket):
         while websocket.application_state == WebSocketState.CONNECTED:
             message = await websocket.receive_text()
             data = json.loads(message)
-            command = data['command']
+            command = data["command"]
             if command == "POWER_ON":
                 psu.turn_on()
                 live_data.update("is_on", True)
-                await websocket.send_text(json.dumps({"status": "OK", "command": "POWER", "payload": live_data.is_on.value}))
+                await websocket.send_text(
+                    json.dumps(
+                        {
+                            "status": "OK",
+                            "command": "POWER",
+                            "payload": live_data.is_on.value,
+                        }
+                    )
+                )
             if command == "POWER_OFF":
                 psu.turn_off()
                 live_data.update("is_on", False)
-                await websocket.send_text(json.dumps({"status": "OK", "command": "POWER", "payload": live_data.is_on.value}))
+                await websocket.send_text(
+                    json.dumps(
+                        {
+                            "status": "OK",
+                            "command": "POWER",
+                            "payload": live_data.is_on.value,
+                        }
+                    )
+                )
             if command == "SET_VOLTAGE":
-                psu.set_output_voltage(data['payload'])
-                live_data.update("voltage_limit", data['payload'])
+                psu.set_output_voltage(data["payload"])
+                live_data.update("voltage_limit", data["payload"])
             if command == "SET_CURRENT":
-                psu.set_output_current(data['payload'])
-                live_data.update("current_limit", data['payload'])
+                psu.set_output_current(data["payload"])
+                live_data.update("current_limit", data["payload"])
     except WebSocketDisconnect:
         print("WebSocket disconnected")
     except InvalidPSUException:
@@ -151,5 +199,6 @@ async def websocket_endpoint(websocket: WebSocket):
         await websocket.close()
     finally:
         ws_clients.remove(websocket)
+
 
 app.mount("/", StaticFiles(directory="static", html=True), name="static")
