@@ -39,12 +39,14 @@ jobs:
       run: |
         pip install --user poetry-plugin-export
         poetry export -f requirements.txt --output requirements.txt --without dev
+        pwd
+        ls -la
     
     - name: Upload requirements.txt
       uses: actions/upload-artifact@v3
       with:
         name: requirements.txt
-        path: ./requirements.txt
+        path: ./server/requirements.txt
 
   semver-action:
     needs: test-and-lint
