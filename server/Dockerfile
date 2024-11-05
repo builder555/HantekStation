@@ -9,8 +9,8 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y curl gnupg2 ca-certificates lsb-release && apt-get clean 
 RUN curl -sSL https://install.python-poetry.org | python3 - 
 
-COPY . .
-COPY ../ui/dist /app/static
+COPY ./server .
+COPY ./ui/dist /app/static
 
 RUN poetry install --no-root
 

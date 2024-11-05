@@ -122,4 +122,5 @@ jobs:
           push: true
           tags: builder555/hantek-station:latest
           platforms: linux/amd64,linux/arm64,linux/arm/v7
-          context: ./server
+          context: .
+          file: ./server/Dockerfile
