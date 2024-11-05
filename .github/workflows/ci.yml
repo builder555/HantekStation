@@ -101,15 +101,12 @@ jobs:
     needs: semver-action
     if: needs.semver-action.outputs.version != ''
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./server
     steps:
       - name: Check out the repo
         uses: actions/checkout@v4
       - name: Build npm
         run: |
-          cd ../ui
+          cd ui
           npm install
           npm run build
       - name: Set up Docker Buildx
@@ -123,5 +120,6 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           push: true
-          tags: builder555/pricewatch:latest
+          tags: builder555/HantekStation:latest
           platforms: linux/amd64,linux/arm64,linux/arm/v7
+          context: ./server
