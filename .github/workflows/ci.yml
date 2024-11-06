@@ -71,7 +71,7 @@ jobs:
 
     - name: Semver Action
       id: semver-action
-      uses: builder555/simple-semver@master
+      uses: builder555/simple-semver@v2
       with:
         last-version: ${{ steps.last-version.outputs.version }}
         last-hash: ${{ steps.last-version.outputs.hash }}
