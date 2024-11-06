@@ -34,5 +34,6 @@ TODO:
 - [x] Set initial voltage/current
 - [x] Display set voltage/current when dragging sliders
 - [x] Reconnect WS on connection loss
-- [ ] Set up CI/CD
-- [ ] Add docker hub image
+- [x] Set up CI/CD
+- [x] Add docker hub image
+- [ ] Add proper tests
