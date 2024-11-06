@@ -1,0 +1,8 @@
+services:
+  server:
+    image: builder555/hantek-station:latest
+    container_name: hantek-station
+    ports:
+      - "8000:8000"
+    devices:
+      - "/dev/ttyUSB0:/dev/ttyUSB0"
