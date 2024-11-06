@@ -10,45 +10,45 @@ on:
       - master
 
 jobs:
-  # test-and-lint:
-  #   runs-on: ubuntu-latest
-  #   defaults:
-  #     run:
-  #       working-directory: ./server
-  #   steps:
-  #   - uses: actions/checkout@v4
+  test-and-lint:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./server
+    steps:
+    - uses: actions/checkout@v4
 
-  #   - name: Set up Python
-  #     uses: actions/setup-python@v5
-  #     with:
-  #       python-version: '3.10'
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
 
-  #   - name: Install dependencies
-  #     run: |
-  #       mkdir static
-  #       pip install poetry
-  #       poetry install
+    - name: Install dependencies
+      run: |
+        mkdir static
+        pip install poetry
+        poetry install
 
-  #   - name: Run pytest
-  #     run: poetry run pytest
+    - name: Run pytest
+      run: poetry run pytest
 
-  #   - name: Run flake8
-  #     run: poetry run flake8
+    - name: Run flake8
+      run: poetry run flake8
 
-  #   - name: Extract requirements.txt
-  #     run: |
-  #       pip install --user poetry-plugin-export
-  #       poetry export -f requirements.txt --output requirements.txt --without dev
+    - name: Extract requirements.txt
+      run: |
+        pip install --user poetry-plugin-export
+        poetry export -f requirements.txt --output requirements.txt --without dev
     
-  #   - name: Upload requirements.txt
-  #     uses: actions/upload-artifact@v4
-  #     with:
-  #       name: requirements.txt
-  #       path: ./server/requirements.txt
-  #       if-no-files-found: error
+    - name: Upload requirements.txt
+      uses: actions/upload-artifact@v4
+      with:
+        name: requirements.txt
+        path: ./server/requirements.txt
+        if-no-files-found: error
 
   semver-action:
-    # needs: test-and-lint
+    needs: test-and-lint
     outputs:
       version: ${{ steps.semver-action.outputs.version }}
       release-notes: ${{ steps.semver-action.outputs.release-notes }}
@@ -63,8 +63,9 @@ jobs:
     - name: Get last version and hash
       id: last-version
       run: |
-        LAST_VERSION=$(git describe --tags --abbrev=0 2>/dev/null | tr -d -c 0-9. || echo 0.0.0) || true
-        COMMIT_HASH=$(git rev-parse v$LAST_VERSION 2>/dev/null || echo "") || true
+        LAST_TAG=$(git describe --tags --abbrev=0 --match "v*.*.*" 2>/dev/null || echo "") || true
+        LAST_VERSION=$(echo $LAST_TAG | tr -d -c 0-9. || echo 0.0.0) || true
+        COMMIT_HASH=$(git rev-list -n 1 $LAST_TAG 2>/dev/null || echo "") || true
         echo "hash=$COMMIT_HASH" >> $GITHUB_OUTPUT
         echo "version=$LAST_VERSION" >> $GITHUB_OUTPUT
 
@@ -76,69 +77,69 @@ jobs:
         last-hash: ${{ steps.last-version.outputs.hash }}
         github-token: ${{ secrets.GITHUB_TOKEN }}
 
-  # create-release:
-  #   needs: semver-action
-  #   runs-on: ubuntu-latest
-  #   if: needs.semver-action.outputs.version != ''
-  #   steps:
-  #   - name: Checkout code
-  #     uses: actions/checkout@v4
+  create-release:
+    needs: semver-action
+    runs-on: ubuntu-latest
+    if: needs.semver-action.outputs.version != ''
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-  #   - name: Set up Python
-  #     uses: actions/setup-python@v5
-  #     with:
-  #       python-version: '3.10'
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
 
-  #   - name: Update pyproject.toml version
-  #     run: |
-  #       cd server
-  #       pip install poetry
-  #       poetry version ${{ needs.semver-action.outputs.version }}
+    - name: Update pyproject.toml version
+      run: |
+        cd server
+        pip install poetry
+        poetry version ${{ needs.semver-action.outputs.version }}
 
-  #   - name: Commit version changes
-  #     run: |
-  #       git config --local user.email "github-actions[bot]@users.noreply.github.com"
-  #       git config --local user.name "github-actions[bot]"
-  #       git add server/pyproject.toml
-  #       git commit -m "chore: bump version to v${{ needs.semver-action.outputs.version }}"
-  #       git tag v${{ needs.semver-action.outputs.version }}
+    - name: Commit version changes
+      run: |
+        git config --local user.email "github-actions[bot]@users.noreply.github.com"
+        git config --local user.name "github-actions[bot]"
+        git add server/pyproject.toml
+        git commit -m "chore: bump version to v${{ needs.semver-action.outputs.version }}"
+        git tag v${{ needs.semver-action.outputs.version }}
     
-  #   - name: Push changes
-  #     uses: ad-m/github-push-action@master
-  #     with:
-  #       github_token: ${{ secrets.GITHUB_TOKEN }}
-  #       branch: ${{ github.ref }}
-  #       tags: true
+    - name: Push changes
+      uses: ad-m/github-push-action@master
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        branch: ${{ github.ref }}
+        tags: true
 
-  # build-and-push:
-  #   needs: semver-action
-  #   if: needs.semver-action.outputs.version != ''
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Check out the repo
-  #       uses: actions/checkout@v4
-  #     - name: Build npm
-  #       run: |
-  #         cd ui
-  #         npm install
-  #         npm run build
-  #     - name: Download requirements.txt
-  #       uses: actions/download-artifact@v4
-  #       with:
-  #         name: requirements.txt
-  #         path: ./server/
-  #     - name: Set up Docker Buildx
-  #       uses: docker/setup-buildx-action@v3
-  #     - name: Log in to Docker Hub
-  #       uses: docker/login-action@v3
-  #       with:
-  #         username: builder555
-  #         password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
-  #     - name: Build and push multi-platform Docker image
-  #       uses: docker/build-push-action@v5
-  #       with:
-  #         push: true
-  #         tags: builder555/hantek-station:latest
-  #         platforms: linux/amd64,linux/arm64,linux/arm/v7
-  #         context: .
-  #         file: ./server/Dockerfile
+  build-and-push:
+    needs: semver-action
+    if: needs.semver-action.outputs.version != ''
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v4
+      - name: Build npm
+        run: |
+          cd ui
+          npm install
+          npm run build
+      - name: Download requirements.txt
+        uses: actions/download-artifact@v4
+        with:
+          name: requirements.txt
+          path: ./server/
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: builder555
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+      - name: Build and push multi-platform Docker image
+        uses: docker/build-push-action@v5
+        with:
+          push: true
+          tags: builder555/hantek-station:latest
+          platforms: linux/amd64,linux/arm64,linux/arm/v7
+          context: .
+          file: ./server/Dockerfile
