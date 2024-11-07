@@ -15,7 +15,11 @@ if os.environ.get("NO_DEVICE"):
 else:
     from hantekpsu import PSU
 
-psu_limits = {"HDP1160V4S": {"MAX_VOLTAGE": 160, "MAX_CURRENT": 4.1}}
+psu_limits = {
+    "HDP1160V4S": {"MAX_VOLTAGE": 161, "MAX_CURRENT": 4.1},
+    "HDP180V8S": {"MAX_VOLTAGE": 81, "MAX_CURRENT": 8.2},
+    "HDP135V6S": {"MAX_VOLTAGE": 35, "MAX_CURRENT": 6.2},
+}
 
 psu = PSU()
 
